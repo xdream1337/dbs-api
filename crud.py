@@ -37,3 +37,14 @@ def create_author(db: Session, author: schemas.AuthorBase = None , author_id: Op
     db.add(new_author)
     db.commit()
     return author_scheme
+
+def update_author(db: Session, author: schemas.AuthorBase):
+    db_author = db.query(models.Author).filter(models.Author.id == author.id).first()
+    for key, value in author.dict(exclude_unset=True).items():
+        if value is not author.id:
+            setattr(db_author, key, value)
+    db_author.updated_at = datetime.now()
+    db.commit()
+    db.refresh(db_author)
+    return db_author
+
