@@ -163,10 +163,10 @@ class Publication(Base):
         "Category", secondary=publication_categories, backref="publications"
     )
     instances = relationship(
-        "Instance", back_populates="publication_instances", cascade="all, delete-orphan"
+        "Instance", back_populates="publications", cascade="all, delete-orphan"
     )
-    reservations = relationship("Reservation", back_populates="publications")
-    rentals = relationship("Rental", back_populates="publications")
+
+    reservations = relationship("Reservation", back_populates="publication")
 
 
 class Instance(Base):
@@ -186,7 +186,7 @@ class Instance(Base):
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=True)
 
-    publication = relationship("Publication", back_populates="instances")
+    publications = relationship("Publication", back_populates="instances")
     rentals = relationship(
-        "Rental", back_populates="instances", cascade="all, delete-orphan"
+        "Rental", back_populates="publication_instance", cascade="all, delete-orphan"
     )
