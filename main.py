@@ -3,6 +3,7 @@ from . import crud, schemas, database, models
 from sqlalchemy.orm import Session
 from typing import List
 import uuid
+from pydantic import UUID4
 
 
 app = FastAPI()
@@ -44,11 +45,23 @@ def update_user(user_id: str, user: schemas.UserUpdate, db: Session = Depends(ge
 def new_author(author: schemas.AuthorBase, db: Session = Depends(get_db)):
     if author.id is not None:
         try:
-            print(author.id)
             val = uuid.UUID(str(author.id), version=4)
         except ValueError:
             raise HTTPException(status_code=400, detail="UUID is not valid")
     db_author = crud.get_author(db, author)
     if db_author is not None:
         raise HTTPException(status_code=400, detail="Author already exists")
-    return crud.create_author(db, author)
+    return crud.create_author(db, author=author)
+
+
+@app.get("/authors", response_model=schemas.AuthorObject)
+def get_author(author_id: UUID4, db: Session = Depends(get_db)):
+    if author_id is not None:
+        try:
+            val = uuid.UUID(str(author_id), version=4)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="UUID is not valid")
+    return crud.get_author(db, author_id=author_id)
+
+
+

@@ -4,6 +4,7 @@ from . import models, schemas
 from datetime import datetime
 from uuid import uuid4
 from pydantic import UUID4
+from typing import Optional, List
 
 
 def get_user(db: Session, user_id: str):
@@ -24,7 +25,9 @@ def get_author(db: Session, author: schemas.AuthorBase):
     return db.query(models.Author).filter(models.Author.id == author.id).first()
 
 
-def create_author(db: Session, author: schemas.AuthorBase):
+def create_author(db: Session, author: schemas.AuthorBase = None , author_id: Optional[UUID4] = None):
+    if author and author_id is None:
+        return None
     if author.id is None:
         author.id = str(uuid4())
     author_scheme = schemas.AuthorObject(
