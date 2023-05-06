@@ -8,7 +8,8 @@ app = FastAPI()
 
 @app.on_event("startup")
 def startup():
-    database.create_database()
+    database.create_tables()
+    print("Database created")
 
 
 def get_db():

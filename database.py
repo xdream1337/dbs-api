@@ -16,3 +16,8 @@ Base = declarative_base()
 
 def create_database():
     Base.metadata.create_all(bind=engine)
+
+
+def create_tables():
+    engine = create_engine(DATABASE_URL)
+    Base.metadata.create_all(engine)
