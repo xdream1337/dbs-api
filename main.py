@@ -1,14 +1,17 @@
 from fastapi import FastAPI, HTTPException, Depends
-from . import crud, schemas, database
+from . import crud, schemas, database, models
 from sqlalchemy.orm import Session
 from typing import List
+
 
 app = FastAPI()
 
 
 @app.on_event("startup")
 def startup():
-    database.create_tables()
+    with database.SessionLocal() as session:
+        # Create tables if they do not exist
+        models.Base.metadata.create_all(bind=database.engine)
     print("Database created")
 
 
