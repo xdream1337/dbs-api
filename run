@@ -1,0 +1,1 @@
+DATABASE_HOST="postgresql.r5.websupport.sk" DATABASE_NAME="l1ab24mf" DATABASE_USER="l1ab24mf" DATABASE_PASSWORD="Tz80m@mXx?" DATABASE_PORT=5432 uvicorn main:app --reload --host 0.0.0.0
