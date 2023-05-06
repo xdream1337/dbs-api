@@ -21,13 +21,13 @@ def update_user(db: Session, user_id: str, user: schemas.UserUpdate):
     return db_user
 
 
-def get_author(db: Session, author: schemas.AuthorBase):
+def get_author(db: Session, author: schemas.Optional[AuthorBase] = None, author_id: Optional[UUID4] = None):
+    if author is None:
+        return db.query(models.Author).filter(models.Author.id == author_id).first()
     return db.query(models.Author).filter(models.Author.id == author.id).first()
 
 
-def create_author(db: Session, author: schemas.AuthorBase = None , author_id: Optional[UUID4] = None):
-    if author and author_id is None:
-        return None
+def create_author(db: Session, author: schemas.AuthorBase = None ):
     if author.id is None:
         author.id = str(uuid4())
     author_scheme = schemas.AuthorObject(
@@ -48,3 +48,11 @@ def update_author(db: Session, author: schemas.AuthorBase):
     db.refresh(db_author)
     return db_author
 
+
+def delete_author(db:Session, author_id: UUID4):
+    db_author = db.query(models.Author).filter(models.Author.id == author_id).first()
+    if not db_author:
+        raise ValueError(f"Author with ID {author_id} not found")
+    db.delete(author)
+    db.commit()
+    
