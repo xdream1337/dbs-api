@@ -70,8 +70,8 @@ class Rental(RentalBase):
 
 class AuthorBase(BaseModel):
     id: Optional[UUID]
-    name: str
-    surname: str
+    name: Optional[str]
+    surname: Optional[str]
 
 
 class AuthorObject(AuthorBase):

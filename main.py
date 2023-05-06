@@ -1,9 +1,10 @@
 from fastapi import FastAPI, HTTPException, Depends
 from . import crud, schemas, database, models
 from sqlalchemy.orm import Session
-from typing import List
+from typing import Optional, List
 import uuid
 from pydantic import UUID4
+
 
 
 app = FastAPI()
@@ -67,13 +68,13 @@ def get_author(author_id: UUID4, db: Session = Depends(get_db)):
 
 
 @app.patch("/authors/{author_id}", status_code=202)
-def get_author(author_id: UUID4, author: schemas.AuthorBase, db: Session = Depends(get_db)):
+def get_author(author_id: UUID4, name: Optional[str], surname: Optional[str], db: Session = Depends(get_db)):
     if author_id is not None:
         try:
             val = uuid.UUID(str(author_id), version=4)
         except ValueError:
             raise HTTPException(status_code=400, detail="UUID is not valid")
-        if author is None:
+        if name and surname is None:
             raise HTTPException(status_code=400, detail="name and surname not provided"
         new_author = schemas.AuthorBase(id=author_id, name=author.name, surname=author.surname)
         crud.update_author(db, new_author)
