@@ -66,3 +66,16 @@ class Rental(RentalBase):
 
     class Config:
         orm_mode = True
+
+
+class AuthorBase(BaseModel):
+    id: Optional[UUID]
+    name: str
+    surname: str
+
+class AuthorObject(AuthorBase):
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
