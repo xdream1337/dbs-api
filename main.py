@@ -54,14 +54,16 @@ def new_author(author: schemas.AuthorBase, db: Session = Depends(get_db)):
     return crud.create_author(db, author=author)
 
 
-@app.get("/authors", response_model=schemas.AuthorObject)
+@app.get("/authors/{author_id}", response_model=schemas.AuthorObject)
 def get_author(author_id: UUID4, db: Session = Depends(get_db)):
     if author_id is not None:
         try:
             val = uuid.UUID(str(author_id), version=4)
         except ValueError:
             raise HTTPException(status_code=400, detail="UUID is not valid")
-    return crud.get_author(db, author_id=author_id)
+        return crud.get_author(db, author_id=author_id)
+    else:
+        raise HTTPException(status_code=400, detail="UUID not provided")
 
 
 
