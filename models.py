@@ -36,6 +36,13 @@ class User(Base):
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=True)
 
+    reservations = relationship(
+        "Reservation", back_populates="user", cascade="all, delete-orphan"
+    )
+    rentals = relationship(
+        "Rental", back_populates="user", cascade="all, delete-orphan"
+    )
+
 
 class Reservation(Base):
     __tablename__ = "reservations"
@@ -49,6 +56,9 @@ class Reservation(Base):
     )
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=True)
+
+    user = relationship("User", back_populates="reservations")
+    publication = relationship("Publication", back_populates="reservations")
 
 
 class Rental(Base):
@@ -68,6 +78,8 @@ class Rental(Base):
 
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=True)
+    user = relationship("User", back_populates="rentals")
+    publication_instance = relationship("Instance", back_populates="rentals")
 
 
 class Card(Base):
@@ -144,6 +156,18 @@ class Publication(Base):
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=True)
 
+    authors = relationship(
+        "Author", secondary=publication_authors, backref="publications"
+    )
+    categories = relationship(
+        "Category", secondary=publication_categories, backref="publications"
+    )
+    instances = relationship(
+        "Instance", back_populates="publication_instances", cascade="all, delete-orphan"
+    )
+    reservations = relationship("Reservation", back_populates="publications")
+    rentals = relationship("Rental", back_populates="publications")
+
 
 class Instance(Base):
     __tablename__ = "publication_instances"
@@ -156,6 +180,13 @@ class Instance(Base):
     year = Column(Integer, nullable=False)
     status = Column(instance_status_enum, nullable=False)
 
-    publication_id = Column(UUID(as_uuid=True), nullable=False)
+    publication_id = Column(
+        UUID(as_uuid=True), ForeignKey("publications.id"), nullable=False
+    )
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=True)
+
+    publication = relationship("Publication", back_populates="instances")
+    rentals = relationship(
+        "Rental", back_populates="instances", cascade="all, delete-orphan"
+    )
