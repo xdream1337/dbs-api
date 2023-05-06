@@ -73,6 +73,7 @@ class AuthorBase(BaseModel):
     name: str
     surname: str
 
+
 class AuthorObject(AuthorBase):
     created_at: datetime
     updated_at: datetime

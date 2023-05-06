@@ -18,7 +18,7 @@ def startup():
 
 def get_db():
     db = database.SessionLocal()
-    try:116215
+    try:
         yield db
     finally:
         db.close()
@@ -40,18 +40,15 @@ def update_user(user_id: str, user: schemas.UserUpdate, db: Session = Depends(ge
     return crud.update_user(db, user_id, user)
 
 
-@app.post("/authors", response_model=schemas.Author)
-def new_author(author: schemas.Author, db: Session = Depends(get_db)):
+@app.post("/authors", response_model=schemas.AuthorObject)
+def new_author(author: schemas.AuthorBase, db: Session = Depends(get_db)):
     if author.id is not None:
         try:
-            val = uuid.UUID(author.id, version=4)
+            print(author.id)
+            val = uuid.UUID(str(author.id), version=4)
         except ValueError:
             raise HTTPException(status_code=400, detail="UUID is not valid")
     db_author = crud.get_author(db, author)
     if db_author is not None:
         raise HTTPException(status_code=400, detail="Author already exists")
-    return crud.create_author(db, author) 
-
-
-
-
+    return crud.create_author(db, author)

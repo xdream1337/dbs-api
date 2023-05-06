@@ -1,4 +1,4 @@
-    from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import UUID
 from . import models, schemas
 from datetime import datetime
@@ -24,13 +24,13 @@ def get_author(db: Session, author: schemas.AuthorBase):
     return db.query(models.Author).filter(models.Author.id == author.id).first()
 
 
-def create_author(db Session, author: schemas.AuthorBase):
+def create_author(db: Session, author: schemas.AuthorBase):
     if author.id is None:
-        author.id = UUID4(str(uuid4()))
-    author_scheme = AuthorObject(author, created_at=datetime.now(), updated_at=datetime.now())
-    new_author = Author(**author_scheme.dict())
+        author.id = str(uuid4())
+    author_scheme = schemas.AuthorObject(
+        **author.dict(), created_at=datetime.now(), updated_at=datetime.now()
+    )
+    new_author = models.Author(**author_scheme.dict())
     db.add(new_author)
     db.commit()
-    db.close()
     return author_scheme
-
