@@ -34,3 +34,31 @@ def create_author(db: Session, author: schemas.AuthorBase):
     db.add(new_author)
     db.commit()
     return author_scheme
+
+
+def get_category(db: Session, category: schemas.CategoryBase):
+    category_id = (
+        db.query(models.Category).filter(models.Category.id == category.id).first()
+    )
+    category_name = (
+        db.query(models.Category).filter(models.Category.name == category.name).first()
+    )
+
+    if category_id:
+        return category_id
+    elif category_name:
+        return category_name
+    else:
+        return None
+
+
+def create_category(db: Session, category: schemas.CategoryBase):
+    if category.id is None:
+        category.id = str(uuid4())
+    category_scheme = schemas.CategoryObject(
+        **category.dict(), created_at=datetime.now(), updated_at=datetime.now()
+    )
+    new_category = models.Category(**category_scheme.dict())
+    db.add(new_category)
+    db.commit()
+    return category_scheme

@@ -80,3 +80,16 @@ class AuthorObject(AuthorBase):
 
     class Config:
         orm_mode = True
+
+
+class CategoryBase(BaseModel):
+    id: Optional[UUID]
+    name: str
+
+
+class CategoryObject(CategoryBase):
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
