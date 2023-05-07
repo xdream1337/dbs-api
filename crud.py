@@ -4,6 +4,7 @@ from . import models, schemas
 from datetime import datetime
 from uuid import uuid4
 from pydantic import UUID4
+from typing import Optional, List
 
 
 def get_user(db: Session, user_id: str):
@@ -20,11 +21,13 @@ def update_user(db: Session, user_id: str, user: schemas.UserUpdate):
     return db_user
 
 
-def get_author(db: Session, author: schemas.AuthorBase):
+def get_author(db: Session, author: schemas.Optional[AuthorBase] = None, author_id: Optional[UUID4] = None):
+    if author is None:
+        return db.query(models.Author).filter(models.Author.id == author_id).first()
     return db.query(models.Author).filter(models.Author.id == author.id).first()
 
 
-def create_author(db: Session, author: schemas.AuthorBase):
+def create_author(db: Session, author: schemas.AuthorBase = None ):
     if author.id is None:
         author.id = str(uuid4())
     author_scheme = schemas.AuthorObject(
@@ -35,6 +38,24 @@ def create_author(db: Session, author: schemas.AuthorBase):
     db.commit()
     return author_scheme
 
+def update_author(db: Session, author: schemas.AuthorBase):
+    db_author = db.query(models.Author).filter(models.Author.id == author.id).first()
+    for key, value in author.dict(exclude_unset=True).items():
+        if value is not author.id:
+            setattr(db_author, key, value)
+    db_author.updated_at = datetime.now()
+    db.commit()
+    db.refresh(db_author)
+    return db_author
+
+
+def delete_author(db:Session, author_id: UUID4):
+    db_author = db.query(models.Author).filter(models.Author.id == author_id).first()
+    if not db_author:
+        raise ValueError(f"Author with ID {author_id} not found")
+    db.delete(author)
+    db.commit()
+    
 
 def get_category(db: Session, category: schemas.CategoryBase):
     category_id = (

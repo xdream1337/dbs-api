@@ -1,8 +1,10 @@
 from fastapi import FastAPI, HTTPException, Depends
 from . import crud, schemas, database, models
 from sqlalchemy.orm import Session
-from typing import List
+from typing import Optional, List
 import uuid
+from pydantic import UUID4
+
 
 
 app = FastAPI()
@@ -44,15 +46,52 @@ def update_user(user_id: str, user: schemas.UserUpdate, db: Session = Depends(ge
 def new_author(author: schemas.AuthorBase, db: Session = Depends(get_db)):
     if author.id is not None:
         try:
-            print(author.id)
             val = uuid.UUID(str(author.id), version=4)
         except ValueError:
             raise HTTPException(status_code=400, detail="UUID is not valid")
-    db_author = crud.get_author(db, author)
+    db_author = crud.get_author(db, author=author)
     if db_author is not None:
         raise HTTPException(status_code=400, detail="Author already exists")
     return crud.create_author(db, author)
 
+
+@app.get("/authors/{author_id}", response_model=schemas.AuthorObject)
+def get_author(author_id: UUID4, db: Session = Depends(get_db)):
+    if author_id is not None:
+        try:
+            val = uuid.UUID(str(author_id), version=4)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="UUID is not valid")
+        return crud.get_author(db, author_id=author_id)
+    else:
+        raise HTTPException(status_code=400, detail="UUID not provided")
+
+
+@app.patch("/authors/{author_id}", status_code=202)
+def get_author(author_id: UUID4, name: Optional[str], surname: Optional[str], db: Session = Depends(get_db)):
+    if author_id is not None:
+        try:
+            val = uuid.UUID(str(author_id), version=4)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="UUID is not valid")
+        if name and surname is None:
+            raise HTTPException(status_code=400, detail="name and surname not provided"
+        new_author = schemas.AuthorBase(id=author_id, name=author.name, surname=author.surname)
+        crud.update_author(db, new_author)
+    else:
+        raise HTTPException(status_code=400, detail="UUID not provided")
+
+                                
+@app.delete("/authors/{author_id}", status_code=200)
+def get_author(author_id: UUID4, db: Session = Depends(get_db)):
+    if author_id is not None:
+        try:
+            val = uuid.UUID(str(author_id), version=4)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="UUID is not valid")
+        crud.delete_author(db, author_id)
+    else:
+        raise HTTPException(status_code=400, detail="UUID not provided")
 
 @app.post("/categories", response_model=schemas.CategoryObject)
 def new_category(category: schemas.CategoryBase, db: Session = Depends(get_db)):
