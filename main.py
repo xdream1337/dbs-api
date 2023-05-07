@@ -6,7 +6,6 @@ import uuid
 from pydantic import UUID4
 
 
-
 app = FastAPI()
 
 
@@ -68,22 +67,27 @@ def get_author(author_id: UUID4, db: Session = Depends(get_db)):
 
 
 @app.patch("/authors/{author_id}", status_code=202)
-def get_author(author_id: UUID4, name: Optional[str], surname: Optional[str], db: Session = Depends(get_db)):
+def update_author(
+    author_id: UUID4,
+    name: str = None,
+    surname: str = None,
+    db: Session = Depends(get_db),
+):
     if author_id is not None:
         try:
             val = uuid.UUID(str(author_id), version=4)
         except ValueError:
             raise HTTPException(status_code=400, detail="UUID is not valid")
-        if name and surname is None:
-            raise HTTPException(status_code=400, detail="name and surname not provided"
-        new_author = schemas.AuthorBase(id=author_id, name=author.name, surname=author.surname)
+        if name is None and surname is None:
+            raise HTTPException(status_code=400, detail="name and surname not provided")
+        new_author = schemas.AuthorBase(id=author_id, name=name, surname=surname)
         crud.update_author(db, new_author)
     else:
         raise HTTPException(status_code=400, detail="UUID not provided")
 
-                                
+
 @app.delete("/authors/{author_id}", status_code=200)
-def get_author(author_id: UUID4, db: Session = Depends(get_db)):
+def delete_author(author_id: UUID4, db: Session = Depends(get_db)):
     if author_id is not None:
         try:
             val = uuid.UUID(str(author_id), version=4)
@@ -92,6 +96,7 @@ def get_author(author_id: UUID4, db: Session = Depends(get_db)):
         crud.delete_author(db, author_id)
     else:
         raise HTTPException(status_code=400, detail="UUID not provided")
+
 
 @app.post("/categories", response_model=schemas.CategoryObject)
 def new_category(category: schemas.CategoryBase, db: Session = Depends(get_db)):
